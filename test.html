@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SofaJS Test</title>
+</head>
+<body>
+  <h1>SofaJS Testbed</h1>
+  <script src="sofa.js"></script>
+  <script>
+    Sofa.server = "http://localhost/db/";
+    
+    var db = new Sofa.DB("test");
+    db.save({test:"testing"}, {
+      success : function (response) {
+        console.log(response);
+      }
+    });
+  </script>
+</body>
+</html>
