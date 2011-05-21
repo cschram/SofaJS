@@ -6,16 +6,25 @@
 </head>
 <body>
   <h1>SofaJS Testbed</h1>
+  <div id="main"></div>
   <script src="sofa.js"></script>
   <script>
+  (function () {
+  
+    var main = document.getElementById("main");
     Sofa.server = "http://localhost/db/";
     
     var db = new Sofa.DB("test");
-    db.save({test:"testing"}, {
+    db.show({
+      doc : "foo",
+      show : "foo",
+      id : "336cccfbb206207c0a950db5fd09fb5f",
       success : function (response) {
-        console.log(response);
+        main.innerHTML = response;
       }
     });
+    
+  })();
   </script>
 </body>
 </html>
