@@ -65,25 +65,25 @@
   
   // Generate a Query string
   function queryString(params) {
-    var query = "?", param;
-    for (param in params) {
-      if (params.hasOwnProperty(param)) {
+    var query = "?", p;
+    for (p in params) {
+      if (params.hasOwnProperty(p)) {
         if (query.slice(-1) !== "?") {
           query += "&";
         }
-        query += param + "=";
-        switch (typeof params[param]) {
+        query += p + "=";
+        switch (typeof params[p]) {
         case "number":
-          query += params[param];
+          query += params[p];
           break;
         case "string":
-          query += "\"" + params[param] + "\"";
+          query += "\"" + params[p] + "\"";
           break;
         case "boolean":
-          query += params[param] ? "true" : "false";
+          query += params[p] ? "true" : "false";
           break;
         default:
-          query += JSON.stringify(params[param]);
+          query += JSON.stringify(params[p]);
           break;
         }
       }
