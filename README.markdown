@@ -1,16 +1,21 @@
 SofaJS
 ======
-SofaJS is a library that makes it easy to communicate with a CouchDB server from the front end.
+SofaJS is a JavaScript library that makes it easy to communicate with a CouchDB server. It allows you to
+easily do most functions in the CouchDB REST API including manipulating documents, running views, and
+authentication (plus more).
 
-Setup
+Configuration
 -----
-    Sofa.server = "http://mydomain.com/path/to/couchdb/";
-Before you can use SofaJS you must set the server path to your CouchDB instance. It requires the trailing "/".
+    Sofa.config({
+      server : "http://yoursite.com/db/"
+    });
+Before you can use SofaJS you must configure it. For now the only option is "server" which is the URL of your
+CouchDB server.
 
 Server Status
 -------------
-    // Sofa.getStatus(success[, error]);
-    Sofa.getStatus(function (response) {
+    // Sofa.status(success[, error]);
+    Sofa.status(function (response) {
       console.log(response.couchdb + " " + response.version);
     }, function (status, message) {
       console.error(status + ": " + message);
@@ -18,8 +23,8 @@ Server Status
  
 Get UUIDs
 ---------
-    // Sofa.getUUIDs(num, success[, error]);
-    Sofa.getUUIDs(5, function (uuids) {
+    // Sofa.uuids(num, success[, error]);
+    Sofa.uuids(5, function (uuids) {
       for (var i = 0; i < 5; i++) {
         docs[i]._id = uuids[i];
       }

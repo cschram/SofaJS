@@ -1,13 +1,38 @@
 ﻿//
-// Author: Corey Schram <corey@coreymedia.com>
-// Description: Framework-agnostic library to conveniently access CouchDB through AJAX
+// CouchDB JavaScript Library
+// Version 0.1 Copyright Corey Schram <corey@coreymedia.com> 2011
+// Last Modified 5/25/2011
+// Distributed under the MIT License
 //
-// Last Modified 5/22/2011
+// TODO:
+//   - Users
+//     - Creation/Deletion
+//     - Authentication
+//     - Permissions/Groups
+//     - Saving
+//   - NodeJS Support
+//     - Use exports.Sofa instead of window.Sofa in Node
+//     - Use HTTP package to communicate with CouchDB instead of AJAX
+//     - NPM Package
+//   - List Functions
+//   - Change Notifications (?)
+//     - Default Polling for both platforms
+//     - Long Polling in the browser (?)
+//     - Continuous Polling in Node (?)
 //
 
 (function (window) {
   "use strict";
-  var Sofa = {};
+  var Sofa = {
+    configuration : { }
+  };
+  
+  // Check if Sofa has been properly configured
+  function checkConfiguration() {
+    if (!Sofa.configuration._configured) {
+      throw "SofaJS is not configured.";
+    }
+  }
   
   // Convenience function to make AJAX calls
   function ajax(options) {
@@ -19,11 +44,14 @@
     }
     
     options.method = options.method || "GET";
-    options.url = options.url || Sofa.server;
+    options.url = options.url;
     
     xhr.open(options.method, options.url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    if (options.contentType) {
+      xhr.setRequestHeader("Content-Type", options.contentType);
+    } else {
+      xhr.setRequestHeader("Content-Type", "application/json");
+    }
     
     xhr.onreadystatechange = function () {
       var json = false;
@@ -55,6 +83,7 @@
     };
     
     if (options.data) {
+      console.log(JSON.stringify(options.data));
       xhr.send(JSON.stringify(options.data));
     } else {
       xhr.send();
@@ -92,18 +121,34 @@
   }
   
   //
+  // Configure SofaJS. This must be done before anything else
+  // Options:
+  //   "server" - Server url
+  //
+  Sofa.config = function (options) {
+    if (!options.server) {
+      throw "SofaJS server must be set.";
+    }
+    
+    if (options.server.slice(-1) !== "/") {
+      options.server = options.server + "/";
+    }
+    
+    Sofa.configuration = options;
+    Sofa.configuration._configured = true;
+  };
+  
+  //
   // Get the status of a CouchDB Server
   // Parameters:
   //   "onSuccess" - Success callback function
   //   "onError" - Error callback function (optional)
   //
-  Sofa.getStatus = function (onSuccess, onError) {
-    if (!Sofa.server) {
-      throw "The Sofa.server string must be set.";
-    }
+  Sofa.status = function (onSuccess, onError) {
+    checkConfiguration();
     ajax({
       method : "GET",
-      url : Sofa.server,
+      url : Sofa.configuration.server,
       success : onSuccess,
       error : onError
     });
@@ -116,13 +161,11 @@
   //   "onSuccess" - Success callback function
   //   "onError" - Error callback function (optional)
   //
-  Sofa.getUUIDs = function (num, onSuccess, onError) {
-    if (!Sofa.server) {
-      throw "The Sofa.server string must be set.";
-    }
+  Sofa.uuids = function (num, onSuccess, onError) {
+    checkConfiguration();
     ajax({
       method : "GET",
-      url : (num < 2) ? (Sofa.server + "_uuids") : (Sofa.server + "_uuids?count=" + num),
+      url : (num < 2) ? (Sofa.configuration.server + "_uuids") : (Sofa.configuration.server + "_uuids?count=" + num),
       success : function (doc) {
         onSuccess(doc.uuids);
       },
@@ -139,12 +182,10 @@
   //   "error" - Error callback function (optional)
   //
   Sofa.replicate = function (options) {
-    if (!Sofa.server) {
-      throw "The Sofa.server string must be set.";
-    }
+    checkConfiguration();
     ajax({
       method : "POST",
-      url : Sofa.server + "_replicate",
+      url : Sofa.configuration.server + "_replicate",
       data : {
         source : options.source,
         target : options.target
@@ -160,14 +201,12 @@
   //   "database" - Database name
   //
   Sofa.DB = function (database) {
-    if (!Sofa.server) {
-      throw "The Sofa.server string must be set.";
-    }
+    checkConfiguration();
     if (!database) {
       throw "Sofa.DB constructor expects a database name argument.";
     }
     
-    this.db = Sofa.server + database;
+    this.db = Sofa.configuration.server + database;
     // Make sure the DB url ends with "/"
     if (this.db.slice(-1) !== "/") {
       this.db = this.db + "/";
@@ -200,6 +239,23 @@
       method : "DELETE",
       url : this.db,
       success : onSuccess,
+      error : onError
+    });
+  };
+  
+  //
+  // Get all the documents in the database
+  // Parameters:
+  //   "onSuccess" - Success callback function
+  //   "onError" - Error callback funciton (optional)
+  //
+  Sofa.DB.prototype.all = function (onSuccess, onError) {
+    ajax({
+      method : "GET",
+      url : this.db + "_all_docs",
+      success : function (doc) {
+        onSuccess(doc.rows);
+      },
       error : onError
     });
   };
@@ -282,7 +338,8 @@
   // Options:
   //   "doc" - Design document name
   //   "show" - Show function name
-  //   "params" - Object containing query stirng parameters (optional)
+  //   "id" - ID of the document to show (optional)
+  //   "params" - Object containing query string parameters (optional)
   //   "success" - Success callback function
   //   "error" - Error callback function (optional)
   //
