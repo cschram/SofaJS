@@ -62,6 +62,10 @@
           } else {
             // Otherwise return the response text as is
             options.callback(xhr.status, xhr.responseText);
+            options.callback(JSON.parse(xhr.responseText), xhr.status);
+          } else {
+            // Otherwise return the response text as is
+            options.callback(xhr.responseText, xhr.status);
           }
         }
       };
