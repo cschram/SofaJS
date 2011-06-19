@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sofa.JS Test</title>
+</head>
+<body>
+  <div id="main"></div>
+  <script src="../sofa.js"></script>
+  <script>
+  (function () {
+    var main = document.getElementById("main"),
+        Server = new Sofa({
+          user : "sofajs",
+          pass : "isgreat",
+          host : "127.0.0.1/db"
+        });
+        
+    // Check the Server Status
+    Server.status(function (status, res) {
+      if (status === 200) {
+        console.log("CouchDB Version " + res.version + ": " + res.couchdb);
+      } else {
+        console.error("Error " + status);
+      }
+    });
+    
+  }());
+  </script>
+</body>
+</html>
