@@ -22,7 +22,9 @@ Take note that in the browser you can put all of this into the `host` value, lik
 If you plan to use a different port than port 80 then you will probably need to do this in the browser.
 
 Then you can create a Database object:
+
     var DB = new Sofa.Database(Server, "mydatabase");
+    
 The Database constructor requires a Sofa.Server object and the name of the Database.
 
 Server Methods
