@@ -1,6 +1,6 @@
 var console = require("console"),
     nodeunit = require("nodeunit"),
-    Sofa = require("../sofa");
+    Sofa = require("sofa");
 
 var Server = new Sofa.Server({
       user : "test",
