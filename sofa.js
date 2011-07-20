@@ -65,7 +65,8 @@
   if (isNode) {
 
     //// NodeJS Setup ////
-    var http = require("http");
+    var http = require("http"),
+        sys  = require("sys");
     request = function (options) {
       extend(options, requestDefaults);
       
@@ -90,6 +91,15 @@
           }
         });
       });
+      
+      req.on("error", function (connectionException) {
+        if (connectionException.errno === process.ECONNREFUSED) {
+          sys.log('ECONNREFUSED: connection refused.');
+        } else {
+          sys.log(connectionException);
+        }
+      });
+
       
       if (options.data) {
         req.write(JSON.stringify(options.data));
@@ -154,7 +164,7 @@
     if (options.host.slice(-1) === "/") {
       options.host = options.host.slice(0, options.host.length - 2);
     }
-    if (options.user && options.pass) {
+    if (isNode && options.user && options.pass) {
       options.headers = options.headers || {
         "Content-Type" : "application/json",
         "Authorization" : "Basic " + (new Buffer(options.user + ":" + options.pass)).toString("base64")
