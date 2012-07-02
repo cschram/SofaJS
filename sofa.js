@@ -66,7 +66,7 @@
 
     //// NodeJS Setup ////
     var http = require("http"),
-        sys  = require("sys");
+        util = require('util');
     request = function (options) {
       extend(options, requestDefaults);
       
@@ -94,9 +94,9 @@
       
       req.on("error", function (connectionException) {
         if (connectionException.errno === process.ECONNREFUSED) {
-          sys.log('ECONNREFUSED: connection refused.');
+          util.log('ECONNREFUSED: connection refused.');
         } else {
-          sys.log(connectionException);
+          util.log(connectionException);
         }
       });
 
